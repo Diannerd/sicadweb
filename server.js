@@ -24,6 +24,7 @@ app.use(cors({
 /* ===================== BODY PARSER ===================== */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /* ===================== SESSION ===================== */
 // PENTING: MemoryStore (default) akan reset setiap deploy di Render.
