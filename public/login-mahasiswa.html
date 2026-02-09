@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login Mahasiswa</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:Inter, Arial, sans-serif;background:#f6f8fb}
+    .wrap{height:100%;display:flex;align-items:center;justify-content:center}
+    .card{background:#fff;padding:36px;border-radius:12px;box-shadow:0 6px 18px rgba(20,30,60,.08);width:380px}
+    h1{margin:0 0 10px;font-size:22px;text-align:center}
+    p{color:#546178;margin:0 0 24px;text-align:center;font-size:14px}
+    .form-group{margin-bottom:15px}
+    label{display:block;margin-bottom:5px;font-weight:600;font-size:14px;color:#333}
+    input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+    .btn{display:block;width:100%;padding:12px;margin-top:20px;border-radius:8px;font-weight:600;cursor:pointer;border:none}
+    .btn-primary{background:#2b7cff;color:#fff}
+    .btn-back{background:transparent;color:#546178;font-size:13px;margin-top:15px;display:block;text-align:center;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Login Mahasiswa</h1>
+      <p>Masukkan NIM dan Kata Sandi Anda</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>NIM</label>
+          <input type="text" id="username" placeholder="Contoh: 22301" required>
+        </div>
+        <div class="form-group">
+          <label>Kata Sandi</label>
+          <input type="password" id="password" placeholder="Masukkan kata sandi" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Masuk ke Dashboard</button>
+        <a href="index.html" class="btn-back">← Kembali</a>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const userVal = document.getElementById('username').value.trim();
+      const passVal = document.getElementById('password').value;
+
+      // Memanggil fungsi login dari auth.js
+      // Path redirect adalah 'pages/...' karena file ini ada di root 'public/'
+      login('mahasiswa', userVal, passVal, 'pages/dashboardMahasiswa.html');
+    });
+  </script>
+</body>
+</html>

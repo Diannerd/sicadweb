@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Mahasiswa - ITU siCAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+        input, select { border: 1px solid #e2e8f0; padding: 0.6rem; border-radius: 0.5rem; width: 100%; margin-bottom: 1rem; outline: none; transition: all 0.2s; }
+        input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-6 md:p-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">Manajemen Mahasiswa</h2>
+                <p class="text-slate-500 text-sm">Kelola data akademik mahasiswa aktif Indonesia Tech University</p>
+                <a href="dashboardDosen.html" class="inline-flex items-center text-blue-600 text-sm font-medium mt-2 hover:text-blue-700 transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
+                </a>
+            </div>
+            <button id="btnAdd" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                <i class="fas fa-plus mr-2"></i> Tambah Mahasiswa
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="relative w-full md:max-w-md">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" id="searchNIM" placeholder="Cari berdasarkan NIM atau Nama..." class="!mb-0 pl-10 bg-white shadow-sm border-slate-200">
+                </div>
+                <div class="text-slate-400 text-sm italic" id="rowCounter">Memuat data...</div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
+                            <th class="p-4 border-b">Mahasiswa</th>
+                            <th class="p-4 border-b text-center">Semester</th>
+                            <th class="p-4 border-b text-center">Kelas</th>
+                            <th class="p-4 border-b text-right px-8">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody" class="text-slate-700 divide-y divide-slate-100">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalMahasiswa" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modalTitle" class="text-xl font-bold text-slate-800">Tambah Mahasiswa Baru</h3>
+                <button type="button" class="text-slate-400 hover:text-slate-600" id="btnCloseX"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="editIndex">
+                
+                <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Nomor Induk Mahasiswa (NIM)</label>
+                <input type="text" id="nim" placeholder="Contoh: 20261001" required>
+                
+                <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Nama Lengkap</label>
+                <input type="text" id="nama" placeholder="Nama lengkap mahasiswa" required>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Semester</label>
+                        <input type="number" id="semester" min="1" max="14" placeholder="1" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase mb-1 block">Kelas</label>
+                        <input type="text" id="kelas" placeholder="TI-2A" required>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 mt-6">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Simpan Data</button>
+                    <button type="button" id="btnCancel" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data Dummy Awal
+        let students = [
+            { nim: '20261001', nama: 'Aris Setiawan', semester: 4, kelas: 'TI-A' },
+            { nim: '20261002', nama: 'Budi Raharjo', semester: 2, kelas: 'SI-B' },
+            { nim: '20261003', nama: 'Citra Lestari', semester: 6, kelas: 'TI-C' }
+        ];
+
+        const modal = document.getElementById('modalMahasiswa');
+        const studentForm = document.getElementById('studentForm');
+        const studentTableBody = document.getElementById('studentTableBody');
+        const searchInput = document.getElementById('searchNIM');
+
+        // Fungsi Render Tabel
+        function renderTable(data = students) {
+            studentTableBody.innerHTML = '';
+            data.forEach((s, index) => {
+                studentTableBody.innerHTML += `
+                    <tr class="hover:bg-blue-50/30 transition group">
+                        <td class="p-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold mr-3">
+                                    ${s.nama.charAt(0)}
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">${s.nama}</div>
+                                    <div class="text-xs text-slate-400 font-mono">${s.nim}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center font-medium text-slate-600">${s.semester}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold uppercase">${s.kelas}</span>
+                        </td>
+                        <td class="p-4 text-right px-8">
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="editStudent(${index})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteStudent(${index})" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('rowCounter').innerText = `Menampilkan ${data.length} Mahasiswa`;
+        }
+
+        // Buka/Tutup Modal
+        document.getElementById('btnAdd').onclick = () => {
+            studentForm.reset();
+            document.getElementById('editIndex').value = '';
+            document.getElementById('modalTitle').innerText = 'Tambah Mahasiswa Baru';
+            modal.style.display = 'flex';
+        };
+
+        document.getElementById('btnCancel').onclick = () => modal.style.display = 'none';
+        document.getElementById('btnCloseX').onclick = () => modal.style.display = 'none';
+
+        // CRUD: Simpan & Update
+        studentForm.onsubmit = (e) => {
+            e.preventDefault();
+            const index = document.getElementById('editIndex').value;
+            const newStudent = {
+                nim: document.getElementById('nim').value,
+                nama: document.getElementById('nama').value,
+                semester: document.getElementById('semester').value,
+                kelas: document.getElementById('kelas').value
+            };
+
+            if (index === "") {
+                students.push(newStudent);
+                Swal.fire('Berhasil!', 'Data mahasiswa telah ditambahkan.', 'success');
+            } else {
+                students[index] = newStudent;
+                Swal.fire('Terupdate!', 'Data mahasiswa telah diperbarui.', 'success');
+            }
+            
+            modal.style.display = 'none';
+            renderTable();
+        };
+
+        // CRUD: Edit
+        window.editStudent = (index) => {
+            const s = students[index];
+            document.getElementById('nim').value = s.nim;
+            document.getElementById('nama').value = s.nama;
+            document.getElementById('semester').value = s.semester;
+            document.getElementById('kelas').value = s.kelas;
+            document.getElementById('editIndex').value = index;
+            document.getElementById('modalTitle').innerText = 'Edit Data Mahasiswa';
+            modal.style.display = 'flex';
+        };
+
+        // CRUD: Delete
+        window.deleteStudent = (index) => {
+            Swal.fire({
+                title: 'Hapus Data?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Ya, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    students.splice(index, 1);
+                    renderTable();
+                    Swal.fire('Terhapus!', 'Data mahasiswa telah dihapus.', 'success');
+                }
+            });
+        };
+
+        // Fitur Pencarian
+        searchInput.oninput = () => {
+            const query = searchInput.value.toLowerCase();
+            const filtered = students.filter(s => 
+                s.nama.toLowerCase().includes(query) || 
+                s.nim.includes(query)
+            );
+            renderTable(filtered);
+        };
+
+        // Inisialisasi
+        renderTable();
+    </script>
+</body>
+</html>

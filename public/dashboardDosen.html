@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Dosen - ITU siCAD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .avatar-sm { width:48px; height:48px; object-fit:cover; border-radius:9999px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] font-sans flex overflow-hidden">
+
+    <aside class="w-64 bg-[#1e293b] min-h-screen text-slate-300 flex flex-col">
+        <div class="p-8 flex flex-col items-center">
+            <div id="sidebarAvatarWrapper" class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-xl overflow-hidden">
+                <img id="sidebarAvatar" src="" alt="ITU" class="w-16 h-16 object-cover hidden">
+                <span id="sidebarLogoText" class="text-[#1e293b] font-black text-2xl">ITU</span>
+            </div>
+            <h2 id="sidebarOrg" class="text-sm font-semibold tracking-widest text-white uppercase text-center">
+                Indonesia Tech University
+            </h2>
+            <p id="sidebarName" class="text-xs text-slate-300 mt-2"></p>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2">
+            <a href="#" class="flex items-center space-x-3 bg-blue-500 text-white px-4 py-3 rounded-lg font-medium">
+                <i class="fas fa-home w-5"></i><span>Dashboard</span>
+            </a>
+            <a href="input-nilai.html" class="flex items-center space-x-3 hover:bg-slate-800 px-4 py-3 rounded-lg">
+                <i class="fas fa-file-invoice w-5"></i><span>Kelola Nilai</span>
+            </a>
+            <a href="daftar-mahasiswa.html" class="flex items-center space-x-3 hover:bg-slate-800 px-4 py-3 rounded-lg">
+                <i class="fas fa-users w-5"></i><span>Daftar Mahasiswa</span>
+            </a>
+            <a href="freeMaterials.html" class="flex items-center space-x-3 hover:bg-slate-800 px-4 py-3 rounded-lg">
+                <i class="fas fa-book-open w-5"></i><span>Free Materials</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700">
+            <a href="#" id="openSettingsBtn" class="flex items-center space-x-3 hover:text-white">
+                <i class="fas fa-cog"></i><span>Pengaturan</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <header class="bg-white h-20 border-b flex items-center justify-between px-10">
+            <div class="text-slate-500 text-sm italic">
+                Sistem Informasi Akademik & Pengelolaan Nilai Terpadu
+            </div>
+            <div class="flex items-center space-x-6">
+                <button onclick="logout()" class="bg-[#3b82f6] hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md">
+                    Log out
+                </button>
+            </div>
+        </header>
+
+        <div class="p-12 max-w-4xl mx-auto w-full">
+            <div class="text-center mb-6">
+                <h1 id="greeting" class="text-4xl font-bold text-slate-800 mb-2">Welcome to your dashboard</h1>
+                <p id="emailText" class="text-xl text-slate-500 font-medium">lecturer.informatika@itu.ac.id</p>
+            </div>
+
+            <div class="space-y-12">
+                <a href="matkul.html" class="flex items-start space-x-6 group hover:bg-white hover:shadow-md p-4 rounded-2xl transition">
+                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white">
+                        <i class="fas fa-user-plus text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Kelola Mata Kuliah</h3>
+                        <p class="text-slate-500">Tambahkan silabus, atur jadwal, dan bobot penilaian.</p>
+                    </div>
+                </a>
+
+                <a href="input-nilai.html" class="flex items-start space-x-6 group hover:bg-white hover:shadow-md p-4 rounded-2xl transition">
+                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white">
+                        <i class="fas fa-edit text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Input Nilai Mahasiswa</h3>
+                        <p class="text-slate-500">Nilai Tugas, UTS, dan UAS otomatis tersinkronisasi.</p>
+                    </div>
+                </a>
+
+                <div onclick="openExportModal()" class="cursor-pointer flex items-start space-x-6 group hover:bg-white hover:shadow-md p-4 rounded-2xl transition">
+                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white">
+                        <i class="fas fa-file-export text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Export Laporan Akademik</h3>
+                        <p class="text-slate-500">Unduh rekap nilai (.xlsx) atau cetak KHS resmi (PDF).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="exportModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6">Export Laporan Akademik</h2>
+            <button onclick="exportExcel()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg mb-4">
+                📊 Export Nilai Kelas (.xlsx)
+            </button>
+            <div class="flex space-x-2">
+                <input id="nimPdf" type="text" placeholder="Masukkan NIM Mahasiswa" class="flex-1 border rounded-lg px-4 py-2">
+                <button onclick="exportPDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 rounded-lg">
+                    🧾 PDF KHS
+                </button>
+            </div>
+            <button onclick="closeExportModal()" class="mt-6 w-full text-slate-500">Batal</button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script> 
+
+    <script>
+        // ======= EXPORT FUNCTION (YANG DIPERBAIKI) =======
+        // ❌ Hapus URL hardcoded 192.168...
+        // ✅ Gunakan path relatif agar otomatis ikut domain Vercel
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+            document.getElementById('exportModal').classList.add('flex');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+            document.getElementById('exportModal').classList.remove('flex');
+        }
+
+        function exportExcel() {
+            // Mengarah ke backend route yang sama
+            window.open('/api/export/nilai-kelas', '_blank');
+        }
+
+        function exportPDF() {
+            const nim = document.getElementById('nimPdf').value;
+            if (!nim) {
+                alert('Masukkan NIM mahasiswa');
+                return;
+            }
+            // Mengarah ke backend route yang sama
+            window.open(`/api/export/khs/${nim}`, '_blank');
+        }
+
+        // ======= LOGOUT & CHECK ROLE =======
+        function logout() {
+            localStorage.clear();
+            // Path kembali ke root (bukan ../)
+            window.location.href = 'index.html';
+        }
+
+        window.onload = function () {
+            // Cek role via localStorage
+            if (localStorage.getItem('role') !== 'dosen') {
+                window.location.href = 'index.html';
+                return;
+            }
+            // (Kode initProfileUI bisa ditambahkan di sini jika diperlukan)
+        }
+    </script>
+</body>
+</html>
